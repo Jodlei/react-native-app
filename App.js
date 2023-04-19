@@ -1,43 +1,26 @@
-import React from "react";
+import React, { useCallback } from "react";
+import { NavigationContainer } from "@react-navigation/native";
 
-import {
-  ImageBackground,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  KeyboardAvoidingView,
-  Keyboard,
-} from "react-native";
-
-import RegistrationScreen from "./screens/RegistrationScreen";
-// import LoginScreen from "./screens/LoginScreen";
+import { useRoute } from "./router";
+import * as Font from "expo-font";
 
 export default function App() {
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-        <ImageBackground
-          source={require("./assets/images/PhotoBG.jpg")}
-          style={styles.image}
-        >
-          <RegistrationScreen />
-          {/* <LoginScreen /> */}
-        </ImageBackground>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
-  );
-}
+  const routing = useRoute(false);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#eaeaea",
-  },
-  image: {
-    flex: 1,
-    justifyContent: "flex-end",
-    resizeMode: "cover",
-  },
-});
+  const [fontsLoaded] = Font.useFonts({
+    "Montserrat-Bold": require("./assets/fonts/Montserrat-Bold.ttf"),
+    "Montserrat-Regular": require("./assets/fonts/Montserrat-Regular.ttf"),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  return <NavigationContainer>{routing}</NavigationContainer>;
+}

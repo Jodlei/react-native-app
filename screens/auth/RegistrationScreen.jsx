@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -10,79 +10,41 @@ import {
   TextInput,
   Keyboard,
   TouchableOpacity,
+  Image,
 } from "react-native";
 
-import * as Font from "expo-font";
-
-function RegistrationScreen() {
+export default function RegistrationScreen({ navigation }) {
   const [inputLoginBgColor, setInputLoginBgColor] = useState("#F8F8F8");
   const [inputEmailBgColor, setInputEmailBgColor] = useState("#F8F8F8");
   const [inputPasswordBgColor, setInputPasswordBgColor] = useState("#F8F8F8");
 
-  const [login, setLogin] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-
-  const [fontsLoaded] = Font.useFonts({
-    "Montserrat-Bold": require("../assets/fonts/Montserrat-Bold.ttf"),
-    "Montserrat-Regular": require("../assets/fonts/Montserrat-Regular.ttf"),
-  });
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        setKeyboardVisible(true);
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
-      }
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    console.log(1);
-    return null;
-  }
-
-  const handleRegistration = () => {
-    console.log(`Login:${login}, Email: ${email}, "Password": ${password}`);
+  const handleKeyboard = () => {
+    Keyboard.dismiss();
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={handleKeyboard}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
+        keyboardVerticalOffset={-150}
       >
         <ImageBackground
-          source={require("../assets/images/PhotoBG.jpg")}
+          source={require("../../assets/images/PhotoBG.jpg")}
           style={styles.image}
         >
           <View style={styles.registrationBox}>
-            <View style={styles.photoBox}></View>
-            <Text style={styles.title}>Реєстрація</Text>
+            <View style={styles.photoBox}>
+              <Image style={styles.profilePhoto} />
+              <TouchableOpacity activeOpacity={0.2} style={styles.addPhotoBtn}>
+                <Ionicons name="add-circle-outline" size={30} color="#FF6C00" />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.title}>Sign Up</Text>
             <View style={styles.form}>
               <TextInput
                 placeholder="Login"
                 style={[styles.input, { borderColor: inputLoginBgColor }]}
-                onChangeText={(text) => setLogin(text)}
                 onFocus={() => setInputLoginBgColor("#FF6C00")}
                 onBlur={() => setInputLoginBgColor("#F8F8F8")}
                 textAlign={"center"}
@@ -90,7 +52,6 @@ function RegistrationScreen() {
               <TextInput
                 placeholder="Email"
                 style={[styles.input, { borderColor: inputEmailBgColor }]}
-                onChangeText={(text) => setEmail(text)}
                 onFocus={() => setInputEmailBgColor("#FF6C00")}
                 onBlur={() => setInputEmailBgColor("#F8F8F8")}
                 textAlign={"center"}
@@ -99,23 +60,24 @@ function RegistrationScreen() {
                 placeholder="Password"
                 secureTextEntry={true}
                 style={[styles.input, { borderColor: inputPasswordBgColor }]}
-                onChangeText={(text) => setPassword(text)}
                 onFocus={() => setInputPasswordBgColor("#FF6C00")}
                 onBlur={() => setInputPasswordBgColor("#F8F8F8")}
                 textAlign={"center"}
               />
-              {!isKeyboardVisible && (
-                <View>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.btn}
-                    onPress={handleRegistration}
-                  >
-                    <Text style={styles.btnTitle}>Реєстрація</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.link}>Вже є аккаунт? Ввійдіть</Text>
-                </View>
-              )}
+              <View style={styles.btnsBox}>
+                <TouchableOpacity activeOpacity={0.8} style={styles.btn}>
+                  <Text style={styles.btnTitle}>Sign Up</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.link}
+                  onPress={() => navigation.navigate("Login")}
+                >
+                  <Text style={styles.linkText}>
+                    Already have an account? Log in
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ImageBackground>
@@ -151,10 +113,20 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "#F6F6F6",
   },
+  profilePhoto: {
+    flex: 1,
+    borderRadius: 16,
+  },
+  addPhotoBtn: {
+    position: "absolute",
+    right: -15,
+    bottom: 10,
+  },
   form: {
     width: "100%",
     paddingHorizontal: 20,
   },
+  btnsBox: {},
   title: {
     fontFamily: "Montserrat-Bold",
     textAlign: "center",
@@ -183,11 +155,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     ...Platform.select({
       ios: {
-        backgroundColor: "#4169e2",
+        backgroundColor: "#FF6C00",
         borderColor: "#f0f8ff",
       },
       android: {
-        backgroundColor: "#4169e1",
+        backgroundColor: "#FF6C00",
         borderColor: "transparent",
       },
     }),
@@ -196,11 +168,15 @@ const styles = StyleSheet.create({
     color: "#f0f8ff",
     fontSize: 18,
   },
-  link: {
-    marginTop: 15,
-    fontSize: 18,
+  linkText: {
+    marginTop: 16,
     textAlign: "center",
+    color: "#1B4371",
+    fontSize: 18,
+  },
+  loader: {
+    position: "absolute",
+    left: -54,
+    bottom: 40,
   },
 });
-
-export default RegistrationScreen;

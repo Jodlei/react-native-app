@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
-
+import React, { useState } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -10,75 +9,33 @@ import {
   TextInput,
   Keyboard,
   TouchableOpacity,
-  Alert,
 } from "react-native";
 
-import * as Font from "expo-font";
-
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [inputEmailBgColor, setInputEmailBgColor] = useState("#F8F8F8");
   const [inputPasswordBgColor, setInputPasswordBgColor] = useState("#F8F8F8");
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [fontsLoaded] = Font.useFonts({
-    "Montserrat-Bold": require("../assets/fonts/Montserrat-Bold.ttf"),
-    "Montserrat-Regular": require("../assets/fonts/Montserrat-Regular.ttf"),
-  });
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        setKeyboardVisible(true);
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
-      }
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  const handleLogin = () => {
-    console.log(`Email: ${email}, "Password" ${password}`);
+  const handleKeyboard = () => {
+    Keyboard.dismiss();
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={handleKeyboard}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={-80}
         style={styles.container}
       >
         <ImageBackground
-          source={require("../assets/images/PhotoBG.jpg")}
+          source={require("../../assets/images/PhotoBG.jpg")}
           style={styles.image}
         >
           <View style={styles.registrationBox}>
-            <Text style={styles.title}>Вхід</Text>
+            <Text style={styles.title}>Login</Text>
             <View style={styles.form}>
               <TextInput
                 placeholder="Email"
                 style={[styles.input, { borderColor: inputEmailBgColor }]}
-                onChangeText={(text) => setEmail(text)}
                 onFocus={() => setInputEmailBgColor("#FF6C00")}
                 onBlur={() => setInputEmailBgColor("#F8F8F8")}
                 textAlign={"center"}
@@ -87,23 +44,24 @@ export default function LoginScreen() {
                 placeholder="Password"
                 secureTextEntry={true}
                 style={[styles.input, { borderColor: inputPasswordBgColor }]}
-                onChangeText={(text) => setPassword(text)}
                 onFocus={() => setInputPasswordBgColor("#FF6C00")}
                 onBlur={() => setInputPasswordBgColor("#F8F8F8")}
                 textAlign={"center"}
               />
-              {!isKeyboardVisible && (
-                <View>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.btn}
-                    onPress={handleLogin}
-                  >
-                    <Text style={styles.btnTitle}>Вхід</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.link}>Ще немає акаунту? Ввійдіть</Text>
-                </View>
-              )}
+              <View>
+                <TouchableOpacity activeOpacity={0.8} style={styles.btn}>
+                  <Text style={styles.btnTitle}>Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.link}
+                  onPress={() => navigation.navigate("Registration")}
+                >
+                  <Text style={styles.linkText}>
+                    Don't have an account? Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ImageBackground>
@@ -177,8 +135,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   link: {
+    backgroundColor: "transparent",
     marginTop: 15,
     fontSize: 18,
     textAlign: "center",
+  },
+  linkText: {
+    textAlign: "center",
+    color: "#1B4371",
+    fontSize: 18,
   },
 });
