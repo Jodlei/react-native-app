@@ -11,12 +11,46 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+import { useDispatch } from "react-redux";
+import { authSignInUser } from "../../redux/auth/authOperations";
+
 export default function LoginScreen({ navigation }) {
+  const dispatch = useDispatch();
+
   const [inputEmailBgColor, setInputEmailBgColor] = useState("#F8F8F8");
   const [inputPasswordBgColor, setInputPasswordBgColor] = useState("#F8F8F8");
 
+  const [state, setState] = useState({
+    email: "",
+    password: "",
+  });
+
   const handleKeyboard = () => {
     Keyboard.dismiss();
+  };
+
+  const handleLogin = () => {
+    dispatch(authSignInUser(state));
+    setState({
+      email: "",
+      password: "",
+    });
+  };
+
+  const handleEmailFocus = () => {
+    setInputEmailBgColor("#FF6C00");
+  };
+
+  const handleEmailBlur = () => {
+    setInputEmailBgColor("#F8F8F8");
+  };
+
+  const handlePasswordFocus = () => {
+    setInputPasswordBgColor("#FF6C00");
+  };
+
+  const handlePasswordBlur = () => {
+    setInputPasswordBgColor("#F8F8F8");
   };
 
   return (
@@ -27,30 +61,42 @@ export default function LoginScreen({ navigation }) {
         style={styles.container}
       >
         <ImageBackground
-          source={require("../../assets/images/PhotoBG.jpg")}
+          source={require("../../assets/images/Photo_BG.jpg")}
           style={styles.image}
         >
           <View style={styles.registrationBox}>
-            <Text style={styles.title}>Login</Text>
+            <Text style={styles.title}>Вхід</Text>
             <View style={styles.form}>
               <TextInput
                 placeholder="Email"
                 style={[styles.input, { borderColor: inputEmailBgColor }]}
-                onFocus={() => setInputEmailBgColor("#FF6C00")}
-                onBlur={() => setInputEmailBgColor("#F8F8F8")}
+                value={state.email}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, email: value }))
+                }
                 textAlign={"center"}
+                onFocus={handleEmailFocus}
+                onBlur={handleEmailBlur}
               />
               <TextInput
                 placeholder="Password"
                 secureTextEntry={true}
                 style={[styles.input, { borderColor: inputPasswordBgColor }]}
-                onFocus={() => setInputPasswordBgColor("#FF6C00")}
-                onBlur={() => setInputPasswordBgColor("#F8F8F8")}
+                value={state.password}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, password: value }))
+                }
                 textAlign={"center"}
+                onFocus={handlePasswordFocus}
+                onBlur={handlePasswordBlur}
               />
               <View>
-                <TouchableOpacity activeOpacity={0.8} style={styles.btn}>
-                  <Text style={styles.btnTitle}>Login</Text>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.btn}
+                  onPress={handleLogin}
+                >
+                  <Text style={styles.btnTitle}>Ввійти</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -58,7 +104,7 @@ export default function LoginScreen({ navigation }) {
                   onPress={() => navigation.navigate("Registration")}
                 >
                   <Text style={styles.linkText}>
-                    Don't have an account? Sign Up
+                    Немає облікового запису? Зареєструватися
                   </Text>
                 </TouchableOpacity>
               </View>

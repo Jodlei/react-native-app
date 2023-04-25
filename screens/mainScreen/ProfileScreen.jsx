@@ -1,25 +1,59 @@
 import { MaterialIcons } from "@expo/vector-icons";
-
+import { useEffect } from "react";
 import {
   ImageBackground,
   Image,
   StyleSheet,
+  Text,
   View,
+  SafeAreaView,
   TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { PublicationsPost } from "../../components/PublicationsPost";
+import { authSignOutUser } from "../../redux/auth/authOperations";
+import { fetchPosts } from "../../redux/posts/postsOperations";
 
 const ProfileScreen = ({ navigation }) => {
+  const { nickname, userPhoto, userId } = useSelector((state) => state.auth);
+
+  const {
+    items: posts,
+    allItems: allPosts,
+    isLoading,
+  } = useSelector((state) => state.posts);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchPosts(userId));
+  }, [allPosts]);
+
+  const renderItem = ({ item }) => (
+    <PublicationsPost item={item} navigation={navigation} />
+  );
+
+  const signOut = () => {
+    dispatch(authSignOutUser());
+  };
+
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../../assets/images/PhotoBG.jpg")}
+        source={require("../../assets/images/Photo_BG.jpg")}
         style={styles.image}
       >
         <View style={styles.profileBox}>
           <View style={styles.photoBox}>
-            <Image style={styles.profilePhoto} />
+            <Image style={styles.profilePhoto} source={{ uri: userPhoto }} />
           </View>
-          <TouchableOpacity activeOpacity={0.8} style={styles.link}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.link}
+            onPress={signOut}
+          >
             <MaterialIcons
               style={styles.logoutIcon}
               name="logout"
@@ -27,6 +61,30 @@ const ProfileScreen = ({ navigation }) => {
               color="#BDBDBD"
             />
           </TouchableOpacity>
+          <Text style={styles.name}>{nickname}</Text>
+          {isLoading && (
+            <ActivityIndicator
+              style={styles.loader}
+              size="small"
+              color="#FF6C00"
+            />
+          )}
+          {posts.length === 0 ? (
+            <Text style={styles.error}>У вас ще немає дописів</Text>
+          ) : (
+            <SafeAreaView style={styles.bottomBox}>
+              <FlatList
+                data={posts}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                style={{
+                  marginTop: 10,
+                  marginBottom: 160,
+                }}
+                showsVerticalScrollIndicator={false}
+              />
+            </SafeAreaView>
+          )}
         </View>
       </ImageBackground>
     </View>

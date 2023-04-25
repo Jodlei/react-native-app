@@ -1,12 +1,10 @@
 import React, { useCallback } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-
-import { useRoute } from "./router";
+import Main from "./components/Main";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 import * as Font from "expo-font";
 
 export default function App() {
-  const routing = useRoute(false);
-
   const [fontsLoaded] = Font.useFonts({
     "Montserrat-Bold": require("./assets/fonts/Montserrat-Bold.ttf"),
     "Montserrat-Regular": require("./assets/fonts/Montserrat-Regular.ttf"),
@@ -22,5 +20,9 @@ export default function App() {
     return null;
   }
 
-  return <NavigationContainer>{routing}</NavigationContainer>;
+  return (
+    <Provider store={store}>
+      <Main />
+    </Provider>
+  );
 }

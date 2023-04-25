@@ -1,17 +1,64 @@
 import { MaterialIcons } from "@expo/vector-icons";
-
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { PublicationsPost } from "../../components/PublicationsPost";
+import { authSignOutUser } from "../../redux/auth/authOperations";
+import { fetchAllPosts } from "../../redux/posts/postsOperations";
 
 const DefaultPostsScreen = ({ navigation }) => {
+  const { allItems, isLoading } = useSelector((state) => state.posts);
+  const allPosts = [...allItems].slice(0, -9);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchAllPosts());
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <PublicationsPost item={item} navigation={navigation} />
+  );
+
+  const signOut = () => {
+    dispatch(authSignOutUser());
+  };
+
+  const updatePosts = () => {
+    dispatch(fetchAllPosts());
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topBox}>
-        <TouchableOpacity activeOpacity={0.8} style={styles.updateIcon}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.updateIcon}
+          onPress={updatePosts}
+        >
           <MaterialIcons name="update" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.title}>Publications</Text>
-
-        <TouchableOpacity activeOpacity={0.8} style={styles.link}>
+        <Text style={styles.title}>Публікації</Text>
+        {isLoading && (
+          <ActivityIndicator
+            style={styles.loader}
+            size="small"
+            color="#FF6C00"
+          />
+        )}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.link}
+          onPress={signOut}
+        >
           <MaterialIcons
             style={styles.logoutIcon}
             name="logout"
@@ -20,6 +67,17 @@ const DefaultPostsScreen = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
+      <SafeAreaView style={styles.bottomBox}>
+        <FlatList
+          data={allPosts}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          style={{
+            marginBottom: 100,
+          }}
+        />
+      </SafeAreaView>
     </View>
   );
 };

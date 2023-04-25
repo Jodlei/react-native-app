@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -12,14 +12,71 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignUpUser } from "../../redux/auth/authOperations";
+
+import * as MediaLibrary from "expo-media-library";
 
 export default function RegistrationScreen({ navigation }) {
+  const dispatch = useDispatch();
+
+  const initialState = {
+    nickname: "",
+    email: "",
+    password: "",
+    userPhoto:
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png",
+  };
+
+  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [inputLoginBgColor, setInputLoginBgColor] = useState("#F8F8F8");
   const [inputEmailBgColor, setInputEmailBgColor] = useState("#F8F8F8");
   const [inputPasswordBgColor, setInputPasswordBgColor] = useState("#F8F8F8");
 
+  const [state, setState] = useState(initialState);
+  const [profilePhoto, setProfilePhoto] = useState(
+    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png"
+  );
+
+  useEffect(() => {
+    (async () => {
+      const mediaLibraryPermission =
+        await MediaLibrary.requestPermissionsAsync();
+      setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
+    })();
+  }, []);
+
   const handleKeyboard = () => {
     Keyboard.dismiss();
+  };
+
+  const handleRegistration = () => {
+    dispatch(authSignUpUser(state));
+    setState(initialState);
+  };
+
+  const handleLoginFocus = () => {
+    setInputLoginBgColor("#FF6C00");
+  };
+
+  const handleLoginBlur = () => {
+    setInputLoginBgColor("#F8F8F8");
+  };
+
+  const handleEmailFocus = () => {
+    setInputEmailBgColor("#FF6C00");
+  };
+
+  const handleEmailBlur = () => {
+    setInputEmailBgColor("#F8F8F8");
+  };
+
+  const handlePasswordFocus = () => {
+    setInputPasswordBgColor("#FF6C00");
+  };
+
+  const handlePasswordBlur = () => {
+    setInputPasswordBgColor("#F8F8F8");
   };
 
   return (
@@ -30,43 +87,59 @@ export default function RegistrationScreen({ navigation }) {
         keyboardVerticalOffset={-150}
       >
         <ImageBackground
-          source={require("../../assets/images/PhotoBG.jpg")}
+          source={require("../../assets/images/Photo_BG.jpg")}
           style={styles.image}
         >
           <View style={styles.registrationBox}>
             <View style={styles.photoBox}>
-              <Image style={styles.profilePhoto} />
-              <TouchableOpacity activeOpacity={0.2} style={styles.addPhotoBtn}>
-                <Ionicons name="add-circle-outline" size={30} color="#FF6C00" />
-              </TouchableOpacity>
+              <Image
+                style={styles.profilePhoto}
+                source={{ uri: profilePhoto }}
+              />
             </View>
-            <Text style={styles.title}>Sign Up</Text>
+            <Text style={styles.title}>Реєстрація</Text>
             <View style={styles.form}>
               <TextInput
                 placeholder="Login"
                 style={[styles.input, { borderColor: inputLoginBgColor }]}
-                onFocus={() => setInputLoginBgColor("#FF6C00")}
-                onBlur={() => setInputLoginBgColor("#F8F8F8")}
+                value={state.nickname}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, nickname: value }))
+                }
+                onFocus={handleLoginFocus}
+                onBlur={handleLoginBlur}
                 textAlign={"center"}
               />
               <TextInput
                 placeholder="Email"
                 style={[styles.input, { borderColor: inputEmailBgColor }]}
-                onFocus={() => setInputEmailBgColor("#FF6C00")}
-                onBlur={() => setInputEmailBgColor("#F8F8F8")}
+                value={state.email}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, email: value }))
+                }
+                onFocus={handleEmailFocus}
+                onBlur={handleEmailBlur}
                 textAlign={"center"}
               />
               <TextInput
                 placeholder="Password"
                 secureTextEntry={true}
                 style={[styles.input, { borderColor: inputPasswordBgColor }]}
-                onFocus={() => setInputPasswordBgColor("#FF6C00")}
-                onBlur={() => setInputPasswordBgColor("#F8F8F8")}
+                value={state.password}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, password: value }))
+                }
+                onFocus={handlePasswordFocus}
+                onBlur={handlePasswordBlur}
                 textAlign={"center"}
               />
               <View style={styles.btnsBox}>
-                <TouchableOpacity activeOpacity={0.8} style={styles.btn}>
-                  <Text style={styles.btnTitle}>Sign Up</Text>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.btn}
+                  onPress={handleRegistration}
+                >
+                  <Text style={styles.btnTitle}>Зареєструватися</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -74,7 +147,7 @@ export default function RegistrationScreen({ navigation }) {
                   onPress={() => navigation.navigate("Login")}
                 >
                   <Text style={styles.linkText}>
-                    Already have an account? Log in
+                    Вже є аккаунт? Авторизуватися
                   </Text>
                 </TouchableOpacity>
               </View>

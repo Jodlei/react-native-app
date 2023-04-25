@@ -1,12 +1,15 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
 import { MaterialIcons, AntDesign } from "@expo/vector-icons";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+
+import LoginScreen from "./screens/auth/LoginScreen";
+import RegistrationScreen from "./screens/auth/RegistrationScreen";
+
 import ProfileScreen from "./screens/mainScreen/ProfileScreen";
 import PostsScreen from "./screens/mainScreen/PostsScreen";
 import CreatePostScreen from "./screens/mainScreen/CreatePostScreen";
-import LoginScreen from "./screens/auth/LoginScreen";
-import RegistrationScreen from "./screens/auth/RegistrationScreen";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 const AuthStack = createStackNavigator();
 const MainTab = createBottomTabNavigator();
@@ -32,7 +35,6 @@ export const useRoute = (isAuth) => {
       </AuthStack.Navigator>
     );
   }
-
   return (
     <MainTab.Navigator screenOptions={{ tabBarShowLabel: false }}>
       <MainTab.Screen
